@@ -1,0 +1,41 @@
+import json
+import parse
+
+
+list1=[]
+d=json.load(open('/home/riki/riki_annotationSDK/info/information.json'))
+filename=''
+newfile=''
+
+for data in d["annotations"]:
+    im=data["id"]
+    list1.append(im)
+    
+for i in range(len(list1)):
+    name=list1[i]
+    filename = name.split('/')[-1].split('.')[0]
+    posbox = []
+    if newfile!=filename:
+        newfile=filename
+        for data in d["annotations"]:
+            tmp = []
+            
+            if data["id"].split('/')[-1].split('.')[0]==newfile:
+                width=data["width"]
+                height=data["height"]
+                depth=data["depth"]
+                className=data["type"]
+                xmin=data["xmin"]
+                xmax=data["xmax"]
+                ymin=data["ymin"]
+                ymax=data["ymax"]
+                tmp = [xmin, ymin, xmax, ymax,className]
+                posbox.append(tmp)
+                
+        f=open('{}.xml'.format(newfile),'a')
+        parse.write_to_xml_head(f, newfile, width, height, depth)
+        for b in posbox:
+            className = b[4]
+            parse.write_to_xml_body(f, className, int(b[0]), int(b[1]), int(b[2]), int(b[3])) 
+        parse.write_to_xml_end(f)
+        f.close()
